@@ -1,0 +1,18 @@
+fun main() {
+  // if
+  if true {
+    writeln("yAA")
+  }
+
+  // if..else
+  if true {
+    writeln("Yayaya");
+  } else {
+    writeln("Nunununu");
+  }
+
+  // ternary-like if
+  let success = true;
+  let message = if success "Operation succeeded" "Operation failed";
+  writeln(message);
+}

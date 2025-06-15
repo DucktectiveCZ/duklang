@@ -1,0 +1,19 @@
+import Foundation.Results.Result;
+import Foundation.Results.Error;
+import Foundation.Results.strError;
+import Foundation.Results.error;
+import Foundation.Results.success;
+
+fun fail(fails: Bool): Result<Int>
+  => if fails { success(10) } else { error(strError("Error")) }
+
+class TestError -> Error {
+  pub let text: Str;
+}
+
+fun testError(text: Str): TestError
+  => new TestError{ text: text };
+
+fun failCustom(): Result<Int>
+  => 
+

@@ -1,0 +1,36 @@
+import Foundation.Net.HttpClient;
+import Foundation.Net.httpClient;
+import Foundation.Primitives.Int;
+import Foundation.Util.String;
+
+class SomeApiClient {
+  let _http: HttpClient;
+
+  pub fun getData(): Int
+    => ret _http.get("example.com/api/data").toInt();
+}
+
+pub fun someApiClient(http: HttpClient): SomeApiClient
+  => new SomeApiClient{ _http: http }
+
+class OtherApiClient {
+  let _http: HttpClient;
+
+  pub fun getData(): Int
+    => ret _http.get("another-example.com/api/data").toInt();
+}
+
+pub fun otherApiClient(http: HttpClient): OtherApiClient
+  => new OtherApiClient{ _http: http }
+
+@entryPoint
+fun main() {
+  let http = httpClient();
+  let someClient = someApiClient(http);
+  let otherClient = otherApiClient(http);
+
+  let d1 = someClient.getData();
+  let d1 = otherClient.getData();
+  
+  writeln("d1: " + d1 + " d2: " + d2);
+}

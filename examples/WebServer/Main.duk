@@ -1,0 +1,11 @@
+import Foundation.Net.Http;
+
+@entryPoint
+fun main() {
+  let server = Http.server(ip("127.0.0.1"), "3000");
+  
+  server.get("/", fun(con: Http.Connection) -> Http.Response => Http.HtmlResponse("<h1>test</h1>"));
+
+  ret server.start();
+}
+

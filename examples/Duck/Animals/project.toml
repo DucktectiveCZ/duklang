@@ -1,0 +1,13 @@
+[meta]
+name = "Example"
+version = [0,1,0]
+author = "DucktectiveCZ"
+
+[pack]
+# Not necessary as this is an executable, not a library
+group = "Example"
+
+[proj]
+type = "exe"
+platforms = [ "linux64", "win64", "darwin_arm64", "darwin_x86_64" ]
+

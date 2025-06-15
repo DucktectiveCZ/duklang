@@ -1,0 +1,22 @@
+import Foundation.Random;
+import Foundation.Console.query;
+import Foundation.Console.writeln;
+
+@entryPoint
+fun main() {
+  writeln("Guess a number from 0 to 10");
+  let quit = false;
+  while !quit {
+    let num = Random.randInt(0, 10);
+
+    let input = query("Guess: ").toInt();
+
+    if input == num {
+      writeln("Correct!");
+      break;
+    }
+
+    writeln($"Wrong! Try again!");
+  }
+}
+

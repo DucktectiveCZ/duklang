@@ -1,0 +1,20 @@
+import Foundation.Console.writeln;
+import Foundation.Types.Str;
+
+group Animals;
+
+class Duck {
+    pub prop name: Str;
+
+    pub fun quak()
+      => writeln(name, " quacked!");
+
+    pub fun say(sentence: Str) {
+      quak();
+      writeln(name, " says: ", sentence)
+    }
+}
+
+fun duck(name: String): Duck 
+  => new Duck { name: name };
+

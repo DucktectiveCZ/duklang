@@ -1,0 +1,16 @@
+class Duck {
+  priv let _name: Str;
+  
+  pub fun quack() {
+    writeln(_name + ": Quack");
+  }
+}
+
+fun duck(name: Str): Duck {
+  ret new Duck { _name: name };
+}
+
+fun main() {
+  let myDuck = duck("pep");
+  myDuck.quack();
+}

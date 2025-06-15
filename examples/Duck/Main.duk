@@ -1,0 +1,10 @@
+import Foundation.Console.prompt()
+import Animals.Duck;
+
+fun main() {
+  let name = prompt("Duck's name: ");
+  let duck = duck(name);
+
+  duck.say("Hi! I'm {}!".format(duck.name));
+}
+
