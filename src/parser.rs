@@ -1,6 +1,17 @@
 use logos::Lexer;
 
-use crate::tokenizer::Token;
+use crate::lexer::Token;
+
+#[derive(thiserror::Error, Debug)]
+pub enum ParseError {
+    #[error("Unknown")]
+    Unknown,
+
+    #[error("Expected {expected}, found {found}")]
+    ExpectedDifferentToken { expected: Token, found: Token },
+
+    #[error("Unknown")]
+}
 
 #[derive(Debug)]
 pub struct ObjectMetadata {
@@ -67,10 +78,10 @@ pub struct CallExpr {
 
 #[derive(Debug)]
 pub enum OpExpr {
-    Add { x: Box<Expr>, y: Box<Expr>, },
-    Sub { x: Box<Expr>, y: Box<Expr>, },
-    Mul { x: Box<Expr>, y: Box<Expr>, },
-    Div { x: Box<Expr>, y: Box<Expr>, },
+    Add { x: Box<Expr>, y: Box<Expr> },
+    Sub { x: Box<Expr>, y: Box<Expr> },
+    Mul { x: Box<Expr>, y: Box<Expr> },
+    Div { x: Box<Expr>, y: Box<Expr> },
 }
 
 #[derive(Debug)]
@@ -99,6 +110,54 @@ pub struct ReturnStatement {
     pub value: Expr,
 }
 
-pub fn parse(lexer: &Lexer<Token>) {
-    ;
+fn extract_ident(lexer: &mut Lexer<Token>) -> Result<String, String> {
+    let tok = lexer.next();
+
+    if !tok.is_some() {
+        return Err("Expected attribute name, found EOF".to_string());
+    }
+    if !tok.unwrap().is_ok() {
+       return Err("Expected attribute name, found Error".to_string());
+    }
+
+    if let Token::Ident(ident) = tok.unwrap().unwrap() {
+        return ident;
+    }
+    
+    Err(format!("Expected ident, found {:?}", tok.unwrap().unwrap()))
+}
+
+fn parse_fun(lexer: &mut Lexer<Token>) -> Result<FunDecl, String> {
+    while let Some(token) = lexer.next() {
+        let span = lexer.span();
+
+        if let Err(_) = token {
+            return Err(format!("Bad token at bytes {} - {}", span.start, span.end));
+        }
+
+        match token.unwrap() {
+            Token::At => 
+        }
+    };
+}
+
+pub fn parse_module(lexer: &mut Lexer<Token>) -> Result<Module, String> {
+    let mut new_module = Module { decls: vec![] };
+
+    while let Some(token) = lexer.next() {
+        if let Err(_) = token {
+            let span = lexer.span();
+            return Err(format!("Bad token at bytes {} - {}", span.start, span.end));
+        }
+
+        let new_node = match token.unwrap() {
+            Token::Fun => {}
+            _ => return Err("Token not implemented in this version".to_string()),
+        };
+        new_module.decls.push(new_node);
+    }
+
+    new_module.decls.shrink_to_fit();
+
+    Ok(Module { decls: vec![] })
 }

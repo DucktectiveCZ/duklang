@@ -1,6 +1,6 @@
 use logos::Logos;
 
-#[derive(Logos, Debug, PartialEq)]
+#[derive(Logos, Debug, PartialEq, strum_macros::Display)]
 pub enum Token {
     // Keywords
     #[token("fun")]

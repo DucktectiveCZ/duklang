@@ -1,29 +1,26 @@
-mod tokenizer;
+mod lexer;
 mod parser;
 
+use lexer::Token;
 use logos::Logos;
-use tokenizer::Token;
+
+use log::{info, trace};
 
 use std::fs::read_to_string;
 use std::io;
 
 fn main() -> io::Result<()> {
-    let source = read_to_string("/home/ducktectivecz/rust/duklang/examples/Class.duk")?;
+    env_logger::init();
 
+    let source = read_to_string("/home/ducktectivecz/rust/duklang/examples/Class.duk").unwrap();
+
+    trace!("Lexer...");
     let mut lexer = Token::lexer(&source);
 
-    while let Some(tok) = lexer.next() {
-        if let Ok(token) = tok {
-            match token {
-                Token::Ident => println!("Ident: {}", lexer.slice()),
-                Token::IntLiteral => println!("IntLiteral: {}", lexer.slice()),
-                Token::StrLiteral => println!("StrLiteral: {}", lexer.slice()),
-                t => println!("{:?}", t),
-            }
-        } else {
-            eprintln!("Compile time error: {:?}", tok.unwrap_err());
-        }
-    }
+    trace!("Parser...");
+    let module = parser::parse_module(&mut lexer).unwrap();
+
+    info!("Module: {:#?}", module);
 
     Ok(())
 }
