@@ -1,6 +1,6 @@
 use logos::Logos;
 
-#[derive(Logos, Debug, PartialEq, strum_macros::Display)]
+#[derive(Logos, Debug, Clone, Copy, PartialEq, strum_macros::Display)]
 pub enum Token {
     // Keywords
     #[token("fun")]
@@ -43,8 +43,12 @@ pub enum Token {
     Ident,
 
     // Literals
-    #[regex(r"[0-9]+")]
+    #[regex(r"[0-9]([0-9_]*[0-9])?u")]
+    UIntLiteral,
+    #[regex(r"[0-9]([0-9_]*[0-9])?")]
     IntLiteral,
+    #[regex(r"[0-9][_0-9]*\.[0-9][_0-9]*([eE][+-]?[0-9][_0-9]*)?", priority = 2)]
+    FloatLiteral,
     #[regex(r#""([^"\\]|\\.)*""#)] // simple double quoted strings with escapes
     StrLiteral,
 

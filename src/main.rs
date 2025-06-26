@@ -1,26 +1,36 @@
-mod lexer;
 mod parser;
+mod lexer;
+mod tests;
 
-use lexer::Token;
-use logos::Logos;
+use owo_colors::OwoColorize;
+use rustyline::{DefaultEditor, Result};
+use parser::Parser;
 
-use log::{info, trace};
-
-use std::fs::read_to_string;
-use std::io;
-
-fn main() -> io::Result<()> {
+fn main() -> Result<()> {
     env_logger::init();
 
-    let source = read_to_string("/home/ducktectivecz/rust/duklang/examples/Class.duk").unwrap();
+    let mut rl = DefaultEditor::new()?;
 
-    trace!("Lexer...");
-    let mut lexer = Token::lexer(&source);
+    loop {
+        let line = rl.readline(">> ");
 
-    trace!("Parser...");
-    let module = parser::parse_module(&mut lexer).unwrap();
-
-    info!("Module: {:#?}", module);
+        match line {
+            Ok(source) => {
+                rl.add_history_entry(source.as_str())?;
+                let ast_res = Parser::new(&source).parse_fun_decl();
+                match ast_res {
+                    Ok(ast) => println!("Parsed AST: {:#?}", ast),
+                    Err(err) => println!("{}{}", "Syntax error: ".red(), err),
+                }
+            }
+            Err(rustyline::error::ReadlineError::Interrupted) |
+            Err(rustyline::error::ReadlineError::Eof) => break, // Ctrl+C or Ctrl+D
+            Err(err) => {
+                eprintln!("Error: {err}");
+                break;
+            }
+        }
+    }
 
     Ok(())
 }
