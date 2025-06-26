@@ -1,0 +1,12 @@
+fun discardable(): Int
+  => 10
+
+@noDiscard
+fun notDiscardable(): Int
+  => 10
+
+fun discardExample() {
+  discardable(); // No warn
+  notDiscardable(); // Warn
+  _ = notDiscardable(); // No warn
+}

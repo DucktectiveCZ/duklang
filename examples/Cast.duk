@@ -1,0 +1,6 @@
+fun castExample() {
+  let floatNum: float = 0.5;
+  let doubleNum = floatNum.asDouble();
+  let numString = "123";
+  let numFromString = numString.parseInt();
+}

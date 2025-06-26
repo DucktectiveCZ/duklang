@@ -1,0 +1,8 @@
+fun func(arg: Int): RetType {
+  // Exprs
+}
+
+fun lambda() {
+  let square = fun(x: Int) { ret x * x; }
+}
+

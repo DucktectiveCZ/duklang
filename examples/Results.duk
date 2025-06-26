@@ -1,0 +1,6 @@
+fun mayFail(fail: Bool): Result<Int, String>
+  => if fail { 10 } else { "Error" }
+
+fun results(): Result<Int, String> {
+  mayFail(false)?;
+}

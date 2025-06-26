@@ -1,0 +1,9 @@
+fun literals() {
+  let integer = 10;
+  let unsignedInteger = 10u;
+  let decimal = 10.5;
+  let character = 'a';
+  let string = "Hello";
+  let array = [ 1, 2, 3 ];
+  let dict = [ "name": "john", "born": "1977" ];
+}

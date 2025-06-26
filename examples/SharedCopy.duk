@@ -1,0 +1,22 @@
+import Foundation.Primitives.Int32;
+import Ffi.Posix;
+
+@noCopy
+class PosixFileHandle {
+  let _descriptor: Int32
+
+  @drop fun()
+    => Posix.close(_descriptor);
+}
+
+fun openPosixFileHandle(path: Str): PosixFileHandle 
+  => new PosixFileHandle { _descriptor: Posix.open(path, Posix.O_RDONLY) }
+
+class File {
+  @copyCounted // May never exist cuz idk if i can implement that ): so we could just use @refCounted but thats bad cause heap allocs
+  let _handle: PosixFileHandle
+}
+
+fun openFile(path: Str): File
+  => new File { _handle: openPosixFileHandle(path) }
+

@@ -6,6 +6,6 @@ fun main() {
   
   server.get("/", fun(con: Http.Connection) -> Http.Response => Http.HtmlResponse("<h1>test</h1>"));
 
-  ret server.start();
+  server.start();
 }
 

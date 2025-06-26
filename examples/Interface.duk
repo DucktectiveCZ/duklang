@@ -1,0 +1,47 @@
+import Foundation.Console.writeln;
+
+group Example.Interfaces;
+
+// sizeof(Animal) == max(sizeof(Duk), sizeof(Bee))
+interface Animal {
+  fun speak();
+}
+
+class Duk : Animal {
+  fun speak()
+    => writeln("quak<3");
+}
+fun duk(): Duk
+  => new Duk{};
+
+class Bee : Animal {
+  fun speak()
+    => writeln("gOod joOoOb<3");
+}
+fun bee(): Bee
+  => new Bee{};
+
+fun makeSpeak(a: Animal)
+  => a.speak();
+
+fun test() {
+  let a: Animal = duk();
+  a.speak(); // Quak<3
+  
+  a = bee();
+  a.speak(); // gOod joOoOb<3
+}
+
+@maxStack(128) // Only allow 128b wide stack-allocated children
+interface LimitedInterf {}
+
+class LimitedChildStack {
+  Long _a;
+}
+
+class LimitedChildHeap {
+  Long _a;
+  Long _b;
+  Long _c;
+}
+

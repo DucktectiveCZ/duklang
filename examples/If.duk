@@ -1,3 +1,7 @@
+import Foundation.Console.writeln;
+
+group Example.If;
+
 fun main() {
   // if
   if true {

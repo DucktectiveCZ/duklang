@@ -1,0 +1,15 @@
+import Ffi.Unix.open;
+import Ffi.Unix.close;
+
+@refCounted // Tells the compiler to transform into an `Arc<PosixFileHandle>`
+class PosixFileHandle {
+  let _handle: Int;
+
+  @drop
+  fun()
+    => close(_handle);
+}
+
+fun posixFileHandle(path: Str): posixFileHandle
+  => new PosixFileHandle{ _handle: open(path) };
+
