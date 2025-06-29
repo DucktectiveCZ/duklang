@@ -17,7 +17,7 @@ fn main() -> Result<()> {
         match line {
             Ok(source) => {
                 rl.add_history_entry(source.as_str())?;
-                let ast_res = Parser::new(&source).parse_fun_decl();
+                let ast_res = Parser::new(&source).parse_let_decl();
                 match ast_res {
                     Ok(ast) => println!("Parsed AST: {:#?}", ast),
                     Err(err) => println!("{}{}", "Syntax error: ".red(), err),

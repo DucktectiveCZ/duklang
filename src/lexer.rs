@@ -7,8 +7,10 @@ pub enum Token {
     Fun,
     #[token("class")]
     Class,
-    #[token("let")]
-    Let,
+    #[token("val")]
+    Val,
+    #[token("var")]
+    Var,
     #[token("pub")]
     Pub,
     #[token("priv")]

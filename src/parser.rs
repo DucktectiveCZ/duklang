@@ -38,6 +38,9 @@ pub enum ParseError {
 
     #[error("A code block is missing")]
     MissingCodeBlock,
+
+    #[error("A assignment is missing")]
+    MissingAssignment,
 }
 
 impl From<()> for ParseError {
@@ -64,18 +67,18 @@ pub struct Module {
 pub enum GroupMemberStatement {
     Class(ClassDeclStatement),
     Fun(FunDeclStatement),
-    Let(LetDeclStatement),
+    Let(ValDeclStatement),
 }
 
 #[derive(Debug)]
 pub enum ClassMemberStatement {
     Fun(FunDeclStatement),
-    Let(LetDeclStatement),
+    Let(ValDeclStatement),
 }
 
 #[derive(Debug)]
 pub enum RuntimeStatement {
-    Let(LetDeclStatement),
+    Let(ValDeclStatement),
     Discard(Expr),
     Return(Option<Expr>),
 }
@@ -90,17 +93,28 @@ pub struct ClassDeclStatement {
 }
 
 #[derive(Debug)]
-pub struct LetDeclStatement {
+pub struct ValDeclStatement {
     pub attributes: Vec<String>,
     pub visibility: VisibilityAnnot,
 
     pub name: String,
-    pub type_name: Option<String>,
+    pub type_annot: Option<String>,
+    pub initial_assignment: Option<Expr>,
+}
+
+#[derive(Debug)]
+pub struct VarDeclStatement {
+    pub attributes: Vec<AttributeAnnot>,
+    pub visibility: VisibilityAnnot,
+
+    pub name: String,
+    pub type_annot: String,
+    pub initial_assignment: Expr,
 }
 
 #[derive(Debug)]
 pub struct FunDeclStatement {
-    pub attributes: Vec<String>,
+    pub attributes: Vec<AttributeAnnot>,
     pub visibility: VisibilityAnnot,
 
     pub name: Option<String>,
@@ -283,26 +297,78 @@ impl<'source> Parser<'source> {
         })
     }
 
-    pub fn parse_let_decl(&mut self) -> Result<LetDeclStatement, ParseError> {
-        let let_tok = self.next().ok_or(ParseError::ExpectedToken)??;
-        if let_tok != Token::Let {
+    // =<v>
+    pub fn parse_assignment(&mut self) -> Result<Option<Expr>, ParseError> {
+        if let Some(equals_tok_res) = self.peek() {
+            let equals_tok = (*equals_tok_res)?;
+            if equals_tok == Token::Equals {
+                self.pop();
+                let expr = self.parse_expr()?;
+                return Ok(Some(expr));
+            }
+        }
+
+        Ok(None)
+    }
+
+    // val<n>[:<T>][=<v>]
+    pub fn parse_immutable_variable_decl(&mut self) -> Result<ValDeclStatement, ParseError> {
+        let val_tok = self.next().ok_or(ParseError::ExpectedToken)??;
+        if val_tok != Token::Val {
             return Err(ParseError::ExpectedDifferentToken {
-                expected: Token::Let,
-                found: let_tok,
+                expected: Token::Val,
+                found: val_tok,
             });
         }
 
-        let name_tok = self.peek_or_error()?;
-        let name = if name_tok == Token::Ident {
-            let name_slice = self.slice();
-            self.pop();
-            Some(name_slice.to_string())
-        } else {
-            None
-        };
+        let name_tok = self.next_or_error()?;
+        if name_tok != Token::Ident {
+            return Err(ParseError::ExpectedDifferentToken { expected: Token::Ident, found: name_tok }   )
+        }
+        let name_slice = self.slice();
 
         let type_annot = self.parse_type_annot()?;
 
+        let initial_assignment = self.parse_assignment()?;
+
+        Ok(ValDeclStatement{
+            attributes: vec![], // TODO: Add attributes support
+            visibility: VisibilityAnnot::Default, // TODO: Add visibility support
+            name: name_slice.to_string(),
+            type_annot,
+            initial_assignment,
+        })
+    }
+
+    // var<n>[:<T>][=<v>]
+    pub fn parse_var_decl(&mut self) -> Result<VarDeclStatement, ParseError> {
+        let attributes = self.parse_attribute_annots()?;
+
+        let var_tok = self.next().ok_or(ParseError::ExpectedToken)??;
+        if var_tok != Token::Var {
+            return Err(ParseError::ExpectedDifferentToken {
+                expected: Token::Var,
+                found: var_tok,
+            });
+        }
+
+        let name_tok = self.next_or_error()?;
+        if name_tok != Token::Ident {
+            return Err(ParseError::ExpectedDifferentToken { expected: Token::Ident, found: name_tok })
+        }
+        let name_slice = self.slice();
+
+        let type_annot = self.parse_type_annot()?.ok_or(ParseError::MissingTypeAnnot)?;
+
+        let initial_assignment = self.parse_assignment()?.ok_or(ParseError::MissingAssignment)?;
+
+        Ok(VarDeclStatement{
+            attributes,
+            visibility: VisibilityAnnot::Default, // TODO: Add visibility support
+            name: name_slice.to_string(),
+            type_annot,
+            initial_assignment,
+        })
     }
 
     pub fn parse_code_block(&mut self) -> Result<Option<Vec<RuntimeStatement>>, ParseError> {
@@ -323,14 +389,14 @@ impl<'source> Parser<'source> {
         Ok(Some(statements))
     }
 
-    pub fn parse_attribute_annots(&mut self) -> Result<Vec<Option<AttributeAnnot>>, ParseError> {
+    pub fn parse_attribute_annots(&mut self) -> Result<Vec<AttributeAnnot>, ParseError> {
         let mut annots = Vec::new();
         loop {
             let annot = self.parse_attribute_annot()?;
             if annot.is_none() {
                 break;
             }
-            annots.push(annot);
+            annots.push(annot.unwrap());
         }
         Ok(annots)
     }
@@ -398,7 +464,7 @@ impl<'source> Parser<'source> {
         
         match type_tok {
             Token::Fun => Ok(GroupMemberStatement::Fun(self.parse_fun_decl()?)),
-            Token::Let => todo!(),
+            Token::Val => todo!(),
             Token::Class => todo!(),
             t => Err(ParseError::UnexpectedToken(t)),
         }
@@ -408,7 +474,7 @@ impl<'source> Parser<'source> {
         let type_tok = self.peek_or_error()?;
         
         match type_tok {
-            Token::Let => todo!(),
+            Token::Val => todo!(),
             t => Err(ParseError::UnexpectedToken(t)),
         }
     }
